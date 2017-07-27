@@ -22,7 +22,9 @@ namespace WpfIATCSharp
         private float lastPeak;
         float secondsRecorded;
         float totalBufferLength;
-        Feedback feedback = new Feedback();
+          
+    /**/Feedback feedback = new Feedback();
+    /**/SendDataPipe sd = new SendDataPipe();
 
         List<VoiceData> VoiceBuffer = new List<VoiceData>();
 
@@ -195,5 +197,10 @@ namespace WpfIATCSharp
         //    showRecogResult.Top = y;
         //    showRecogResult.Show();
         //}
+        
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            sd.WriteDataOnFile();
+        }
     }
 }

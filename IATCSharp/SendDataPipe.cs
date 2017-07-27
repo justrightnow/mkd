@@ -5,11 +5,29 @@ using System.IO.Pipes;
 using System.Security.Principal;
 using System.Threading;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using Microsoft.Win32;
+using System.Text;
 
 namespace WpfIATCSharp
 {
     class SendDataPipe
     {
+    /**/Stopwatch stopwatch = new Stopwatch();
+        /// <summary>
+        /// Holds one utterance for the transcript
+        /// </summary>
+    /**/public class TranscriptUtterance
+        {
+            public TimeSpan Timespan;
+            public string Recognition;
+            public string Translation;
+        }
+        /// <summary>
+        /// Holds the set of utterances in this conversation;
+        /// </summary>
+    /**/public List<TranscriptUtterance> Transcript = new List<TranscriptUtterance>();
+
         private void SendData(object data)
         {
             try
@@ -45,6 +63,13 @@ namespace WpfIATCSharp
                 //Dictionary<string, object>
                 //trans_result = JsonConvert.DeserializeObject<Dictionary<string, object>>(JsonObject["trans_result"].ToString());
                 //final_text = trans_result["dst"].ToString();
+
+                TranscriptUtterance utterance = new TranscriptUtterance();
+                utterance.Recognition = jsonObject.trans_result.src.ToString();
+                utterance.Translation = jsonObject.trans_result.dst.ToString();
+                utterance.Timespan = stopwatch.Elapsed;
+                Transcript.Add(utterance);
+                Debug.WriteLine("Utterance: {0}",utterance.Recognition);
             }
             catch (Exception e)
             {
@@ -52,6 +77,7 @@ namespace WpfIATCSharp
             }
 
             Debug.WriteLine(final_text);
+
             Thread pipeThread = new Thread(new ParameterizedThreadStart(SendData));
             pipeThread.IsBackground = true;
             pipeThread.Start(final_text);
@@ -71,6 +97,34 @@ namespace WpfIATCSharp
             public string sid { get; set; }
             public string to { get; set; }
             public TransResult trans_result { get; set; }
+        }
+
+        public void WriteDataOnFile()
+        {
+            SaveFileDialog savefiledialog = new SaveFileDialog();
+            savefiledialog.RestoreDirectory = true;
+            savefiledialog.FileName = "Transcript_" + ".txt";
+            savefiledialog.Filter = "Text Files|*.txt|All files|*.*";
+            if (savefiledialog.ShowDialog() ?? false)
+            {
+                string transcriptfilename = Path.ChangeExtension(savefiledialog.FileName, "." + Path.GetExtension(savefiledialog.FileName));
+                using (StreamWriter file = new StreamWriter(transcriptfilename, false, Encoding.UTF8))
+                {
+                    Debug.WriteLine("Brandon");
+                    foreach (TranscriptUtterance utterance in Transcript)
+                    {
+                        file.WriteLine("Recognition: {0}",utterance.Recognition);
+                        Debug.WriteLine("Hola!");
+                    }
+                    file.Close();
+                    using (Process p = new Process())
+                    {
+                        p.StartInfo.FileName = transcriptfilename;
+                        p.Start();
+                    }
+                }
+            }
+
         }
     }   
 }

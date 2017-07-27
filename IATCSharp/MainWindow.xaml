@@ -13,11 +13,12 @@
         </Style>
     </Window.Resources>
     <Canvas>
-        <Button Name="btnStart" Height="25" Width="50" Content="开始" Click="btnStart_Click" Style="{StaticResource ButtonStyle}" Canvas.Top="41" Canvas.Left="44"></Button>
-        <Button Name="btnStop" Height="25" Width="50" Content="停止" Click="btnStop_Click" Style="{StaticResource ButtonStyle}" Canvas.Left="108" Canvas.Top="41"/>
+        <Button Name="btnStart" Height="25" Width="50" Content="开始" Click="btnStart_Click" Style="{StaticResource ButtonStyle}" Canvas.Top="41" Canvas.Left="39"></Button>
+        <Button Name="btnStop" Height="25" Width="50" Content="停止" Click="btnStop_Click" Style="{StaticResource ButtonStyle}" Canvas.Left="103" Canvas.Top="41"/>
         <ComboBox Name="combDevice" Width="105" Canvas.Left="82" Canvas.Top="7" Height="19"/>
         <TextBlock TextWrapping="Wrap" Text="选择设备：" VerticalAlignment="Top" Canvas.Top="9" Width="67" Canvas.Left="15" />
         <ProgressBar Name="prgVolume"  Height="6" Canvas.Top="73" Width="172" Canvas.Left="15"/>
+        <CheckBox Content="副本" Canvas.Left="165" Canvas.Top="45" FontSize="7" VerticalContentAlignment="Center" Checked="CheckBox_Checked"/>
     </Canvas>
 
 </Window>
