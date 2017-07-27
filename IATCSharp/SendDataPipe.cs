@@ -33,18 +33,23 @@ namespace WpfIATCSharp
             string text = recResult;
             string final_text = "";
 
-            //Solution A:
+            try
+            {
+                //Solution A:
+                RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
+                final_text = jsonObject.trans_result.dst.ToString();
 
-            RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
-            final_text = jsonObject.trans_result.dst.ToString();
-
-            //Solution B:
-            //Dictionary<string, object>
-            //JsonObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(text);
-            //Dictionary<string, object>
-            //trans_result = JsonConvert.DeserializeObject<Dictionary<string, object>>(JsonObject["trans_result"].ToString());
-            //final_text = trans_result["dst"].ToString();
-
+                //Solution B:
+                //Dictionary<string, object>
+                //JsonObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(text);
+                //Dictionary<string, object>
+                //trans_result = JsonConvert.DeserializeObject<Dictionary<string, object>>(JsonObject["trans_result"].ToString());
+                //final_text = trans_result["dst"].ToString();
+            }
+            catch (Exception e)
+            {
+                text = null;
+            }
 
             Debug.WriteLine(final_text);
             Thread pipeThread = new Thread(new ParameterizedThreadStart(SendData));
@@ -52,7 +57,7 @@ namespace WpfIATCSharp
             pipeThread.Start(final_text);
         }
 
-        //For Solution A:
+        //Below 2 classes for Solution A:
         public class TransResult
         {
             public string src { get; set; }
