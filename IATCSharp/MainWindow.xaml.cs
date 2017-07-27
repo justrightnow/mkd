@@ -124,7 +124,7 @@ namespace WpfIATCSharp
             {
                 if (VoiceBuffer.Count() > 5)
                 {
-                    IAT.RunIAT(VoiceBuffer, session_begin_params);
+                    IAT.RunIAT(VoiceBuffer, session_begin_params, ref sd);
                 }
 
                 VoiceBuffer.Clear();
@@ -177,7 +177,6 @@ namespace WpfIATCSharp
             btnStart.IsEnabled = true;
             btnStop.IsEnabled = false;
         }
-
 
         //private void btnSpread_Click(object sender, RoutedEventArgs e)
         //{

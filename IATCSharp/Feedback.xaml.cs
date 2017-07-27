@@ -63,6 +63,7 @@ namespace WpfIATCSharp
             this.txtContent.Text = value + "\n" + finaltranslationhistory;
             finaltranslationhistory = value + "\n" + finaltranslationhistory.Substring(0, Math.Min(500, finaltranslationhistory.Length));
         }
+
         private void ReceiveDataFromClient()
         {
             MyDelegate d = new MyDelegate(setValue);

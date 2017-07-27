@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Win32;
 using System.Text;
+using System.Globalization;
 
 namespace WpfIATCSharp
 {
@@ -17,7 +18,7 @@ namespace WpfIATCSharp
         /// <summary>
         /// Holds one utterance for the transcript
         /// </summary>
-    /**/public class TranscriptUtterance
+    /**/private class TranscriptUtterance
         {
             public TimeSpan Timespan;
             public string Recognition;
@@ -26,7 +27,7 @@ namespace WpfIATCSharp
         /// <summary>
         /// Holds the set of utterances in this conversation;
         /// </summary>
-    /**/public List<TranscriptUtterance> Transcript = new List<TranscriptUtterance>();
+    /**/private List<TranscriptUtterance> Transcript = new List<TranscriptUtterance>();
 
         private void SendData(object data)
         {
@@ -69,7 +70,7 @@ namespace WpfIATCSharp
                 utterance.Translation = jsonObject.trans_result.dst.ToString();
                 utterance.Timespan = stopwatch.Elapsed;
                 Transcript.Add(utterance);
-                Debug.WriteLine("Utterance: {0}",utterance.Recognition);
+                Debug.WriteLine("Utterance: {0} {1}",utterance.Recognition, jsonObject.trans_result.src.ToString());
             }
             catch (Exception e)
             {
@@ -99,22 +100,23 @@ namespace WpfIATCSharp
             public TransResult trans_result { get; set; }
         }
 
+        private string Now() { return DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.ff", DateTimeFormatInfo.InvariantInfo); }
+
         public void WriteDataOnFile()
         {
             SaveFileDialog savefiledialog = new SaveFileDialog();
             savefiledialog.RestoreDirectory = true;
-            savefiledialog.FileName = "Transcript_" + ".txt";
+            savefiledialog.FileName = "Transcript_" + DateTime.Now.ToString("yyMMdd_HHmm") + ".txt";
             savefiledialog.Filter = "Text Files|*.txt|All files|*.*";
             if (savefiledialog.ShowDialog() ?? false)
             {
                 string transcriptfilename = Path.ChangeExtension(savefiledialog.FileName, "." + Path.GetExtension(savefiledialog.FileName));
                 using (StreamWriter file = new StreamWriter(transcriptfilename, false, Encoding.UTF8))
                 {
-                    Debug.WriteLine("Brandon");
                     foreach (TranscriptUtterance utterance in Transcript)
                     {
-                        file.WriteLine("Recognition: {0}",utterance.Recognition);
-                        Debug.WriteLine("Hola!");
+                        file.WriteLine("{0} Recognition: {1}\n",Now(),utterance.Recognition);
+                        file.WriteLine("{0} Translation: {1}\n",Now(),utterance.Translation);
                     }
                     file.Close();
                     using (Process p = new Process())
