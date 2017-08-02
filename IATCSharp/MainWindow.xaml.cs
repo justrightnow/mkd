@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Windows;
@@ -25,10 +28,13 @@ namespace WpfIATCSharp
           
     /**/Feedback feedback = new Feedback();
     /**/SendDataPipe sd = new SendDataPipe();
+    /**/public string selected_service = "SessionBeginVoice";
+    /**/string logAudioFileName = null;
+    /**/private WaveFileWriter audioSent; //WaveFileWriter is a class
 
         List<VoiceData> VoiceBuffer = new List<VoiceData>();
 
-        int Ends = 5;
+        int Ends = 5;//梦龙：originally 5
 
         public MainWindow()
         {
@@ -36,7 +42,7 @@ namespace WpfIATCSharp
             this.Topmost = true;
 
             Left = System.Windows.SystemParameters.PrimaryScreenWidth - 217 - 2;
-            Top = System.Windows.SystemParameters.PrimaryScreenHeight - 120 - 40 - 2;
+            Top = System.Windows.SystemParameters.PrimaryScreenHeight - 150 - 40 - 2;
 
             FormLoad();
             SpeechRecognition();
@@ -68,8 +74,13 @@ namespace WpfIATCSharp
             {
                 combDevice.SelectedIndex = 0;
             }
-            btnStart.IsEnabled = true;
+
+            combService.Items.Add("语音识别");
+            combService.Items.Add("机器翻译");
+
+            btnStart.IsEnabled = false;
             btnStop.IsEnabled = false;
+            CheckBox_Transcript.IsEnabled = false;
         }
 
         public void SpeechRecognition()
@@ -77,7 +88,7 @@ namespace WpfIATCSharp
             //初始化语音识别
             int ret = (int)ErrorCode.MSP_SUCCESS;
             string login_params = string.Format("appid = {0}, work_dir = {1}", ConfigurationManager.AppSettings["AppID"].ToString(), ConfigurationManager.AppSettings["WorkDir"].ToString());
-            session_begin_params = ConfigurationManager.AppSettings["SessionBeginParamsTranslate"].ToString();
+            //session_begin_params = ConfigurationManager.AppSettings["SessionBeginVoice"].ToString();
 
             string Username = ConfigurationManager.AppSettings["Username"].ToString();
             string Password = ConfigurationManager.AppSettings["Password"].ToString();
@@ -105,6 +116,11 @@ namespace WpfIATCSharp
 
         void OnDataAvailable(object sender, WaveInEventArgs e)
         {
+        /**/if (audioSent != null)
+            {
+                audioSent.Write(e.Buffer, 0, e.BytesRecorded);
+            }
+
             totalBufferLength += e.Buffer.Length;
             secondsRecorded = (float)(totalBufferLength / 32000);
             
@@ -118,17 +134,17 @@ namespace WpfIATCSharp
             if (lastPeak < 20)
                 Ends = Ends - 1;
             else
-                Ends = 5;
+                Ends = 5;//梦龙：originally 5
 
             if (Ends == 0)
             {
                 if (VoiceBuffer.Count() > 5)
                 {
-                    IAT.RunIAT(VoiceBuffer, session_begin_params, ref sd);
+                    IAT.RunIAT(VoiceBuffer, session_begin_params, ref sd,selected_service);
                 }
 
                 VoiceBuffer.Clear();
-                Ends = 5;
+                Ends = 5;//梦龙：originally 5
             }
 
             prgVolume.Value = lastPeak;
@@ -159,10 +175,22 @@ namespace WpfIATCSharp
             var device = (MMDevice)combDevice.SelectedItem;
             device.AudioEndpointVolume.Mute = false;
             waveIn.WaveFormat = new WaveFormat(16000, 1);
+
+            // Setup player and recorder but don't start them yet.
+        /**/WaveFormat waveFormat = new WaveFormat(16000, 1);
+
+        /**/if (logAudioFileName != null)
+            {
+                audioSent = new WaveFileWriter(logAudioFileName, waveFormat);
+                Debug.WriteLine("I: Recording outgoing audio in " + logAudioFileName);
+            }
+
             waveIn.StartRecording();
 
             btnStart.IsEnabled = false;
             btnStop.IsEnabled = true;
+
+            CheckBox_Transcript.IsEnabled = true;
         }
 
         void OnRecorderMaximumCalculated(object sender, MaxSampleEventArgs e)
@@ -176,6 +204,17 @@ namespace WpfIATCSharp
 
             btnStart.IsEnabled = true;
             btnStop.IsEnabled = false;
+
+            // Close the audio file if logging
+        /**/if (audioSent != null)
+            {
+                audioSent.Flush();
+                audioSent.Dispose();
+                audioSent = null;
+            }
+
+            CheckBox_RecordAudio.IsChecked = false;
+
         }
 
         //private void btnSpread_Click(object sender, RoutedEventArgs e)
@@ -200,6 +239,32 @@ namespace WpfIATCSharp
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             sd.WriteDataOnFile();
+        }
+
+        private void combService_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (combService.SelectedValue.ToString() == "语音识别") { selected_service = "SessionBeginVoice"; btnStart.IsEnabled = true; }
+            else if (combService.SelectedValue.ToString() == "机器翻译") { selected_service = "SessionBeginTranslate"; btnStart.IsEnabled = true; }
+            else MessageBox.Show("请选择一个服务");
+
+            session_begin_params = ConfigurationManager.AppSettings[selected_service].ToString();
+        }
+
+        private string Now() { return DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.ff", DateTimeFormatInfo.InvariantInfo); }
+
+        private void CheckBox_RecordAudio_Checked(object sender, RoutedEventArgs e)
+        {
+                string logAudioPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                try
+                {
+                    Directory.CreateDirectory(logAudioPath);
+                }
+                catch
+                {
+                    Debug.WriteLine("Could not create folder {0}", logAudioPath);
+                }
+
+                logAudioFileName = System.IO.Path.Combine(logAudioPath, string.Format("audiosent_" + DateTime.Now.ToString("yyMMdd_HHmm") + ".wav"));
         }
     }
 }

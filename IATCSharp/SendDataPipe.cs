@@ -47,30 +47,27 @@ namespace WpfIATCSharp
             }
         }
 
-        public void Start(string recResult)
+        public void Start(string recResult,string service)
         {
             string text = recResult;
             string final_text = "";
-
+            
             try
             {
-                //Solution A:
-                RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
-                final_text = jsonObject.trans_result.dst.ToString();
+                if (service == "SessionBeginTranslate")
+                {
+                    RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
+                    final_text = jsonObject.trans_result.dst.ToString();
 
-                //Solution B:
-                //Dictionary<string, object>
-                //JsonObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(text);
-                //Dictionary<string, object>
-                //trans_result = JsonConvert.DeserializeObject<Dictionary<string, object>>(JsonObject["trans_result"].ToString());
-                //final_text = trans_result["dst"].ToString();
+                    TranscriptUtterance utterance = new TranscriptUtterance();
+                    utterance.Recognition = jsonObject.trans_result.src.ToString();
+                    utterance.Translation = jsonObject.trans_result.dst.ToString();
+                    utterance.Timespan = stopwatch.Elapsed;
+                    Transcript.Add(utterance);
+                    Debug.WriteLine("Utterance: " + utterance.Recognition);
+                }
+                else final_text = recResult;
 
-                TranscriptUtterance utterance = new TranscriptUtterance();
-                utterance.Recognition = jsonObject.trans_result.src.ToString();
-                utterance.Translation = jsonObject.trans_result.dst.ToString();
-                utterance.Timespan = stopwatch.Elapsed;
-                Transcript.Add(utterance);
-                Debug.WriteLine("Utterance: {0} {1}",utterance.Recognition, jsonObject.trans_result.src.ToString());
             }
             catch (Exception e)
             {

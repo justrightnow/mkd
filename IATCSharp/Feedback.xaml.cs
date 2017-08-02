@@ -16,7 +16,13 @@ namespace WpfIATCSharp
     public partial class Feedback : Window
     {
         delegate void MyDelegate(string value);
-        private string finaltranslationhistory = "";        
+        private string last_sentence = "";
+        private int last_used_line_index = 0;
+        private bool first_time = true;
+        public string last_character;
+        private string global_value = "";
+        private int row = 0;
+        private bool wait = false;
 
         private void RefreshWindow(double width, double height)
         {
@@ -28,7 +34,7 @@ namespace WpfIATCSharp
         {
             InitializeComponent();
 
-            RefreshWindow(500,170);
+            RefreshWindow(500,145);
             Width = System.Windows.SystemParameters.PrimaryScreenWidth; //originally this line no exist
 
         /**/this.ShowInTaskbar = false;
@@ -36,8 +42,7 @@ namespace WpfIATCSharp
             this.MouseDown += new MouseButtonEventHandler(Window_MouseDown);
             //this.MouseMove += new MouseEventHandler(Window_MouseMove);
             //this.MouseLeave += new MouseEventHandler(Window_MouseLeave);
-        /**///this.txtContent.TextChanged += new TextChangedEventHandler(txtContent_changeHeight);
-        /**/this.txtContent.MaxLines = 2;
+            this.txtContent.TextChanged += new TextChangedEventHandler(txtContent_changeHeight);
 
             ContextMenu mMenu = new ContextMenu();
             MenuItem closeMenu = new MenuItem();
@@ -59,9 +64,32 @@ namespace WpfIATCSharp
         void setValue(string value)
         {
             //this.txtContent.Text = value;
-            
-            this.txtContent.Text = value + "\n" + finaltranslationhistory;
-            finaltranslationhistory = value + "\n" + finaltranslationhistory.Substring(0, Math.Min(500, finaltranslationhistory.Length));
+
+            //Option A Movies sub
+            global_value = value;
+            if (row >= 3) { row--; this.txtContent.LineDown(); }
+
+            if (first_time) { this.txtContent.Clear(); first_time = false; this.txtContent.AppendText(value); }
+            else this.txtContent.AppendText("\n" + value);
+
+            if (value.Length > 51) { this.txtContent.LineDown(); wait = true; }
+
+            this.txtContent.LineDown();
+
+            //Option B Concatenated
+            //this.txtContent.TextAlignment = TextAlignment.Left;
+            //if (first_time) { this.txtContent.Clear(); first_time = false; }
+
+            //this.txtContent.AppendText(value);
+            //last_used_line_index = this.txtContent.GetLastVisibleLineIndex();
+            //last_sentence = this.txtContent.GetLineText(last_used_line_index);
+
+            //last_character = last_sentence[txtContent.GetLineLength(last_used_line_index) - 1].ToString();
+            //if (last_character != "." && last_character != "!" && last_character != "?") this.txtContent.AppendText(". ");
+            //else this.txtContent.AppendText(" ");
+
+            //this.txtContent.LineDown();
+
         }
 
         private void ReceiveDataFromClient()
@@ -81,6 +109,7 @@ namespace WpfIATCSharp
                         Debug.WriteLine(recData);
                         this.Dispatcher.Invoke(d, recData);
                     }
+                    if (wait) Thread.Sleep(2000);
                     Thread.Sleep(1000);
                     sr.Close();
                 }
@@ -121,21 +150,52 @@ namespace WpfIATCSharp
         {
             if (sender is TextBox)
             {
-                if ((sender as TextBox).Text != string.Empty && (sender as TextBox).Text.Length / 22 > 3)
+                if ((sender as TextBox).Text != string.Empty && global_value.Length / 51 > 2) //梦龙: 51 is the max. # of characters one line can show (actually is a bit more but to be safe)
                 {
-
-                    int row = (sender as TextBox).Text.Length / 22 + 2;
-                    this.Height = row * 30;
+                    row = global_value.Length / 51  + 1;
+                    this.Height = row * (145 / 2);
 
                     RefreshWindow(500, this.Height);
+                    wait = true;
+                }
+                else if (row >= 3)
+                {
+                    this.Height = row * (145 / 2);
+                    RefreshWindow(500, this.Height);
+                    wait = true;
                 }
                 else
                 {
-                    this.Height = 100;
-                    this.Width = 500;
-                    RefreshWindow(500, 100);
+                    this.Height = 145;
+                    //this.Width = 500;
+                    RefreshWindow(500, 145);
+                    wait = false;
                 }
             }
+        }
+
+        private void txtContent_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.Background = Brushes.Blue;
+                this.Opacity = 0.3;
+                DragMove();
+
+                var height = System.Windows.SystemParameters.PrimaryScreenHeight;
+                var width = System.Windows.SystemParameters.PrimaryScreenWidth;
+
+                if (this.Left < 0)
+                    this.Left = 0;
+                if (this.Top < 0)
+                    this.Top = 0;
+                if (this.Top + this.Height > height)
+                    this.Top = height - this.Height;
+                if (this.Left + this.Width > width)
+                    this.Left = width - this.Width;
+            }
+            this.Background = null;
+            this.Opacity = 1;
         }
     }
 }

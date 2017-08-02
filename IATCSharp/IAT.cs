@@ -36,7 +36,7 @@ namespace WpfIATCSharp
             return Encoding.UTF8.GetString(lb.ToArray());
         }
 
-        public static void RunIAT(List<VoiceData> VoiceBuffer, string session_begin_params, ref SendDataPipe SendDataPipe)
+        public static void RunIAT(List<VoiceData> VoiceBuffer, string session_begin_params, ref SendDataPipe SendDataPipe,string service)
         {
             IntPtr session_id = IntPtr.Zero;
             string rec_result = string.Empty;
@@ -98,9 +98,9 @@ namespace WpfIATCSharp
             Debug.WriteLine(rec_result);
             //BehaviorAnalysis behaviorAnalysis = new BehaviorAnalysis();
             //behaviorAnalysis.Start(rec_result);
-            //SendDataPipe SendDataPipe = new SendDataPipe();
-            SendDataPipe.Start(rec_result);
-            
+
+            SendDataPipe.Start(rec_result, service);
+
             int errorcode = MSCDLL.QISRSessionEnd(PtrToStr(session_id), hints);
             if ((int)ErrorCode.MSP_SUCCESS == errorcode)
             {
