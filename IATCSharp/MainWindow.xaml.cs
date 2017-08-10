@@ -1,6 +1,7 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
@@ -9,6 +10,8 @@ using System.Globalization;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using VoiceRecorder.Audio;
 
@@ -25,12 +28,16 @@ namespace WpfIATCSharp
         private float lastPeak;
         float secondsRecorded;
         float totalBufferLength;
-          
+
+    /**/public string selected_service;
     /**/Feedback feedback = new Feedback();
     /**/SendDataPipe sd = new SendDataPipe();
-    /**/public string selected_service = "SessionBeginVoice";
     /**/string logAudioFileName = null;
-    /**/private WaveFileWriter audioSent; //WaveFileWriter is a class
+    /**/private WaveFileWriter audioSent; //WaveFileWriter is a class                                 
+    /**/private BlockingCollection<QueueItem> outgoingMessageQueue = new BlockingCollection<QueueItem>();// Queue of messages waiting to be sent.
+    /**/public event EventHandler<Exception> Failed;
+    /**/private bool click = false;
+    /**/List<VoiceData> VoiceReady = new List<VoiceData>();
 
         List<VoiceData> VoiceBuffer = new List<VoiceData>();
 
@@ -47,7 +54,7 @@ namespace WpfIATCSharp
             FormLoad();
             SpeechRecognition();
 
-        /**///Feedback feedback = new Feedback(); //Put as a Global variable in order to use OnWindowClosing()
+            /**///Feedback feedback = new Feedback(); //Put as a Global variable in order to use OnWindowClosing()
             feedback.Show();
             
             this.Closing += new CancelEventHandler(OnWindowClosing);
@@ -76,7 +83,8 @@ namespace WpfIATCSharp
             }
 
             combService.Items.Add("语音识别");
-            combService.Items.Add("机器翻译");
+            combService.Items.Add("中英翻译");
+            combService.Items.Add("英中翻译");
 
             btnStart.IsEnabled = false;
             btnStop.IsEnabled = false;
@@ -123,7 +131,7 @@ namespace WpfIATCSharp
 
             totalBufferLength += e.Buffer.Length;
             secondsRecorded = (float)(totalBufferLength / 32000);
-            
+
             VoiceData data = new VoiceData();
             for (int i = 0; i < 3200; i++)
             {
@@ -140,7 +148,11 @@ namespace WpfIATCSharp
             {
                 if (VoiceBuffer.Count() > 5)
                 {
-                    IAT.RunIAT(VoiceBuffer, session_begin_params, ref sd,selected_service);
+                    //IAT.RunIAT(VoiceBuffer, session_begin_params, ref sd,selected_service);
+                    VoiceReady.AddRange(VoiceBuffer);
+
+                    var msg = new QueueItem(VoiceReady, session_begin_params, ref sd, selected_service);
+                    this.outgoingMessageQueue.Add(msg);
                 }
 
                 VoiceBuffer.Clear();
@@ -161,6 +173,7 @@ namespace WpfIATCSharp
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            click = true;
             this.WindowState = WindowState.Minimized;
 
             totalBufferLength = 0;
@@ -175,6 +188,12 @@ namespace WpfIATCSharp
             var device = (MMDevice)combDevice.SelectedItem;
             device.AudioEndpointVolume.Mute = false;
             waveIn.WaveFormat = new WaveFormat(16000, 1);
+
+
+            // Start receive and send loops
+            var sendAudioRecorded = Task.Run(() => this.StartSending())
+                .ContinueWith((t) => ReportError(t))
+                .ConfigureAwait(false);
 
             // Setup player and recorder but don't start them yet.
         /**/WaveFormat waveFormat = new WaveFormat(16000, 1);
@@ -191,6 +210,44 @@ namespace WpfIATCSharp
             btnStop.IsEnabled = true;
 
             CheckBox_Transcript.IsEnabled = true;
+        }
+
+        private async Task StartSending()
+        {
+            while (click)
+            {
+                QueueItem item = null;
+                if (this.outgoingMessageQueue.TryTake(out item, 100))
+                {
+                    try
+                    {
+                        await IAT.RunIAT(VoiceReady, session_begin_params, ref sd, selected_service);
+                        item.CompletionSource.TrySetResult(true);
+                        VoiceReady.Clear();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        item.CompletionSource.TrySetCanceled();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        item.CompletionSource.TrySetCanceled();
+                    }
+                    catch (Exception ex)
+                    {
+                        item.CompletionSource.TrySetException(ex);
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private void ReportError(Task task)
+        {
+            if (task.IsFaulted)
+            {
+                if (this.Failed != null) Failed(this, task.Exception);
+            }
         }
 
         void OnRecorderMaximumCalculated(object sender, MaxSampleEventArgs e)
@@ -244,10 +301,12 @@ namespace WpfIATCSharp
         private void combService_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (combService.SelectedValue.ToString() == "语音识别") { selected_service = "SessionBeginVoice"; btnStart.IsEnabled = true; }
-            else if (combService.SelectedValue.ToString() == "机器翻译") { selected_service = "SessionBeginTranslate"; btnStart.IsEnabled = true; }
+            else if (combService.SelectedValue.ToString() == "中英翻译") { selected_service = "SessionBeginTranslateCntoEn"; btnStart.IsEnabled = true; }
+            else if (combService.SelectedValue.ToString() == "英中翻译") { selected_service = "SessionBeginTranslateEntoCn";btnStart.IsEnabled = true; }
             else MessageBox.Show("请选择一个服务");
 
             session_begin_params = ConfigurationManager.AppSettings[selected_service].ToString();
+            feedback.service = selected_service;
         }
 
         private string Now() { return DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.ff", DateTimeFormatInfo.InvariantInfo); }

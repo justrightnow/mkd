@@ -51,10 +51,10 @@ namespace WpfIATCSharp
         {
             string text = recResult;
             string final_text = "";
-            
+
             try
             {
-                if (service == "SessionBeginTranslate")
+                if ((service == "SessionBeginTranslateCntoEn") || (service == "SessionBeginTranslateEntoCn"))
                 {
                     RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
                     final_text = jsonObject.trans_result.dst.ToString();
@@ -64,7 +64,6 @@ namespace WpfIATCSharp
                     utterance.Translation = jsonObject.trans_result.dst.ToString();
                     utterance.Timespan = stopwatch.Elapsed;
                     Transcript.Add(utterance);
-                    Debug.WriteLine("Utterance: " + utterance.Recognition);
                 }
                 else final_text = recResult;
 

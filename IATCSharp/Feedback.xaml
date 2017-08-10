@@ -19,7 +19,7 @@
                 <DropShadowEffect ShadowDepth="0" Color="#FF414141" BlurRadius="8"/>
             </Border.Effect>-->
             <!--<Label Name="labContent" Content="" FontSize="20" FontFamily="Technical Italic,Comic Sans MS,Arial" FontStyle="Normal" Foreground="White" />-->
-        <TextBox Name="txtContent" Text="你好" AcceptsReturn="True" TextWrapping="Wrap" Foreground="Red" FontSize="52" FontFamily="Technical Italic,Comic Sans MS,Arial" FontStyle="Normal" Background="{x:Null}" TextAlignment="Center" Margin="0" BorderThickness="0" PreviewMouseLeftButtonDown="txtContent_PreviewMouseLeftButtonDown"></TextBox>
+        <TextBox Name="txtContent" Text="你好" AcceptsReturn="True" TextWrapping="Wrap" Foreground="Red" FontSize="52" FontFamily="Technical Italic,Comic Sans MS,Arial" FontStyle="Normal" Background="{x:Null}" TextAlignment="Center" Margin="0" BorderThickness="0" PreviewMouseLeftButtonDown="txtContent_PreviewMouseLeftButtonDown"/>
         <!--</Border>-->
     </Grid>
     

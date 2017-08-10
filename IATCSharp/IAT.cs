@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace WpfIATCSharp
 {
@@ -36,7 +38,7 @@ namespace WpfIATCSharp
             return Encoding.UTF8.GetString(lb.ToArray());
         }
 
-        public static void RunIAT(List<VoiceData> VoiceBuffer, string session_begin_params, ref SendDataPipe SendDataPipe,string service)
+        public static Task RunIAT(List<VoiceData> VoiceReady, string session_begin_params, ref SendDataPipe SendDataPipe,string service)
         {
             IntPtr session_id = IntPtr.Zero;
             string rec_result = string.Empty;
@@ -50,15 +52,15 @@ namespace WpfIATCSharp
             if ((int)ErrorCode.MSP_SUCCESS != errcode)
             {
                 Debug.WriteLine("\nQISRSessionBegin failed! error code:{0}\n", errcode);
-                return;
+                //return;
             }
 
-            for(int i=0;i<VoiceBuffer.Count();i++)
+            for(int i=0;i<VoiceReady.Count();i++)
             {
                 aud_stat = AudioStatus.ISR_AUDIO_SAMPLE_CONTINUE;
                 if (i == 0)
                     aud_stat = AudioStatus.ISR_AUDIO_SAMPLE_FIRST;
-                errcode = MSCDLL.QISRAudioWrite(PtrToStr(session_id), VoiceBuffer[i].data, (uint)VoiceBuffer[i].data.Length, aud_stat, ref ep_stat, ref rec_stat);
+                errcode = MSCDLL.QISRAudioWrite(PtrToStr(session_id), VoiceReady[i].data, (uint)VoiceReady[i].data.Length, aud_stat, ref ep_stat, ref rec_stat);
                 if ((int)ErrorCode.MSP_SUCCESS != errcode)
                 {
                     MSCDLL.QISRSessionEnd(PtrToStr(session_id), null);
@@ -69,7 +71,7 @@ namespace WpfIATCSharp
             if ((int)ErrorCode.MSP_SUCCESS != errcode)
             {
                 Debug.WriteLine("\nQISRAudioWrite failed! error code:{0} \n", errcode);
-                return;
+                //return;
             }
 
             while (RecogStatus.ISR_REC_STATUS_SPEECH_COMPLETE != rec_stat)
@@ -96,6 +98,7 @@ namespace WpfIATCSharp
 
             //结果
             Debug.WriteLine(rec_result);
+            
             //BehaviorAnalysis behaviorAnalysis = new BehaviorAnalysis();
             //behaviorAnalysis.Start(rec_result);
 
@@ -106,6 +109,8 @@ namespace WpfIATCSharp
             {
                 Debug.WriteLine("\nQISRGetResult successfull, {0}\n", hints);
             }
+
+            return Task.FromResult(rec_result);
         }
     }
 }

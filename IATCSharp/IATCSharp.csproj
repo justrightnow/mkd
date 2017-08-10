@@ -85,6 +85,7 @@
     </Compile>
     <Compile Include="MemoryReadWrite.cs" />
     <Compile Include="MSCDLL.cs" />
+    <Compile Include="QueueItem.cs" />
     <Compile Include="ResultCode.cs" />
     <Compile Include="SendDataPipe.cs" />
     <Compile Include="TTS.cs" />

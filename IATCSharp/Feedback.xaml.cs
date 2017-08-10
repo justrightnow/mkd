@@ -16,13 +16,14 @@ namespace WpfIATCSharp
     public partial class Feedback : Window
     {
         delegate void MyDelegate(string value);
-        private string last_sentence = "";
-        private int last_used_line_index = 0;
         private bool first_time = true;
         public string last_character;
+        public string service;
         private string global_value = "";
         private int row = 0;
         private bool wait = false;
+        private int i = 0;
+        private int maxLength = 0;
 
         private void RefreshWindow(double width, double height)
         {
@@ -30,6 +31,7 @@ namespace WpfIATCSharp
             //Left = System.Windows.SystemParameters.PrimaryScreenWidth - (System.Windows.SystemParameters.PrimaryScreenWidth / 2) - width / 2;
             Top = System.Windows.SystemParameters.PrimaryScreenHeight - height - 40 - 2;
         }
+
         public Feedback()
         {
             InitializeComponent();
@@ -42,7 +44,8 @@ namespace WpfIATCSharp
             this.MouseDown += new MouseButtonEventHandler(Window_MouseDown);
             //this.MouseMove += new MouseEventHandler(Window_MouseMove);
             //this.MouseLeave += new MouseEventHandler(Window_MouseLeave);
-            this.txtContent.TextChanged += new TextChangedEventHandler(txtContent_changeHeight);
+            
+            //this.txtContent.TextChanged += new TextChangedEventHandler(txtContent_changeHeight); //梦龙：Need to be improved!
 
             ContextMenu mMenu = new ContextMenu();
             MenuItem closeMenu = new MenuItem();
@@ -64,32 +67,19 @@ namespace WpfIATCSharp
         void setValue(string value)
         {
             //this.txtContent.Text = value;
-
+            
             //Option A Movies sub
-            global_value = value;
-            if (row >= 3) { row--; this.txtContent.LineDown(); }
+            if (i > 1)
+            {
+                this.txtContent.LineDown();
+            }
+            else
+            {
+                if (first_time) { this.txtContent.Clear(); first_time = false; this.txtContent.AppendText(value); }
+                else this.txtContent.AppendText("\n" + value);
 
-            if (first_time) { this.txtContent.Clear(); first_time = false; this.txtContent.AppendText(value); }
-            else this.txtContent.AppendText("\n" + value);
-
-            if (value.Length > 51) { this.txtContent.LineDown(); wait = true; }
-
-            this.txtContent.LineDown();
-
-            //Option B Concatenated
-            //this.txtContent.TextAlignment = TextAlignment.Left;
-            //if (first_time) { this.txtContent.Clear(); first_time = false; }
-
-            //this.txtContent.AppendText(value);
-            //last_used_line_index = this.txtContent.GetLastVisibleLineIndex();
-            //last_sentence = this.txtContent.GetLineText(last_used_line_index);
-
-            //last_character = last_sentence[txtContent.GetLineLength(last_used_line_index) - 1].ToString();
-            //if (last_character != "." && last_character != "!" && last_character != "?") this.txtContent.AppendText(". ");
-            //else this.txtContent.AppendText(" ");
-
-            //this.txtContent.LineDown();
-
+                this.txtContent.LineDown();
+            }
         }
 
         private void ReceiveDataFromClient()
@@ -108,8 +98,19 @@ namespace WpfIATCSharp
                     {
                         Debug.WriteLine(recData);
                         this.Dispatcher.Invoke(d, recData);
+
+                        if (service == "SessionBeginTranslateCntoEn") { maxLength = 51; } //Maximum English characters my screen can show in one line 
+                        else if (service == "SessionBeginTranslateEntoCn") { maxLength = 26; } //Maximum Chinese characters my screen can show in one line
+
+                        i = recData.Length / maxLength + 1;
+                        Debug.WriteLine("Length: {0} \nRows: {1}",recData.Length,i);
+                        if (i > 1)
+                        {
+                            Thread.Sleep(3000);
+                            while (i > 1) { this.Dispatcher.Invoke(d, recData); Thread.Sleep(3000); i--; }
+                        }
                     }
-                    if (wait) Thread.Sleep(2000);
+
                     Thread.Sleep(1000);
                     sr.Close();
                 }
@@ -150,6 +151,7 @@ namespace WpfIATCSharp
         {
             if (sender is TextBox)
             {
+                Debug.WriteLine("global_value.Lenght = "+global_value.Length);
                 if ((sender as TextBox).Text != string.Empty && global_value.Length / 51 > 2) //梦龙: 51 is the max. # of characters one line can show (actually is a bit more but to be safe)
                 {
                     row = global_value.Length / 51  + 1;
@@ -180,6 +182,7 @@ namespace WpfIATCSharp
             {
                 this.Background = Brushes.Blue;
                 this.Opacity = 0.3;
+
                 DragMove();
 
                 var height = System.Windows.SystemParameters.PrimaryScreenHeight;
@@ -194,6 +197,9 @@ namespace WpfIATCSharp
                 if (this.Left + this.Width > width)
                     this.Left = width - this.Width;
             }
+
+            Thread.Sleep(400);
+
             this.Background = null;
             this.Opacity = 1;
         }
