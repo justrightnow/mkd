@@ -54,80 +54,78 @@ namespace WpfIATCSharp
             }
         }
 
-        public void Start(string recResult,string service, AzureAuthToken tokenProvider)
+        public void Start(string recResult,string name)
         {
             string text = recResult;
-            string final_text = "";
-            string final_Google = "";
+            string recognition = "";
+            string translation = "";
 
             try
             {
-                if ((service == "SessionBeginTranslateCntoEn") || (service == "SessionBeginTranslateEntoCn"))
+                if (name == "中英翻译")
                 {
-                    //RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
-                    //final_text = jsonObject.trans_result.dst.ToString();
+                    Debug.WriteLine("HOLA!");
+                    recognition = polish(text);
 
-                    //TranscriptUtterance utterance = new TranscriptUtterance();
-                    //utterance.Recognition = jsonObject.trans_result.src.ToString();
-                    //utterance.Translation = jsonObject.trans_result.dst.ToString();
-                    //utterance.Timespan = stopwatch.Elapsed;
-                    //Transcript.Add(utterance);
+                    //Start Google
+                    List<string> reco = new List<string>();
+                    reco.Add(recognition);
+                    int b = 0;
+
+                    while (reco[b].Length > 74 || reco[b].Contains("？"))
+                    {
+                        string buffer = reco[b];
+
+                        if (reco[b].Contains("？") && reco[b].IndexOf("？") < 74)
+                        {
+                            if (reco[b].IndexOf("？") + 1 == reco[b].Length) break;
+                            else
+                            {
+                                reco.Add(reco[b].Substring(buffer.IndexOf("？") + 1));
+                                reco[b] = reco[b].Remove(buffer.IndexOf("？") + 1);
+                            }
+                        }
+                        else
+                        {
+                            while (buffer.LastIndexOf("，") > 74) buffer = buffer.Remove(buffer.LastIndexOf("，"));
+
+                            reco.Add(reco[b].Substring(buffer.LastIndexOf("，") + 1));
+                            reco[b] = reco[b].Remove(buffer.LastIndexOf("，") + 1);
+                        }
+
+                        b++;
+                    }
+
+                    foreach (string value in reco) translation += GoogleTranslate(value, "zh-CN", "en") + " ";
+                    //End Google
+                    Debug.WriteLine("ADIOS!");
                 }
-                else final_text = recResult;                  
+                else if (name == "英中翻译")
+                {
+                    RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
+                    recognition = jsonObject.trans_result.src.ToString();
+                    translation = jsonObject.trans_result.dst.ToString();
+                }
+                else if (name == "语音识别")
+                {
+                    recognition = polish(text);
+                    translation = recognition;
+                }
             }
             catch (Exception e)
             {
                 text = null;
             }
 
-            Debug.WriteLine("Voice Recognition: "+final_text);
-            final_text = polish(final_text);
-            Debug.WriteLine("Voice Recognition after polished: " + final_text);
-
-            //Start Google
-
-            List<string> reco = new List<string>();
-            reco.Add(final_text);
-            int b = 0;
-            
-            while (reco[b].Length > 74 || reco[b].Contains("？"))
-            {
-                string buffer = reco[b];
-
-                if (reco[b].Contains("？") && reco[b].IndexOf("？") < 74)
-                {
-                    reco.Add(reco[b].Substring(buffer.IndexOf("？") + 1));
-                    reco[b] = reco[b].Remove(buffer.IndexOf("？") + 1);
-                }
-                else
-                {
-                    while (buffer.LastIndexOf("，") > 74) buffer = buffer.Remove(buffer.LastIndexOf("，"));
-
-                    reco.Add(reco[b].Substring(buffer.LastIndexOf("，") + 1));
-                    reco[b] = reco[b].Remove(buffer.LastIndexOf("，") + 1);
-                }
-                
-                b++;
-            }
-
-            foreach (string value in reco)
-            {
-                final_Google += GoogleTranslate(value, "zh-CN", "en") + " ";
-            }
-
-            //End Google
-
-            Debug.WriteLine("Translation: "+final_Google);
-
             TranscriptUtterance utterance = new TranscriptUtterance();
-            utterance.Recognition = final_text;
-            utterance.Translation = final_Google;
+            utterance.Recognition = recognition;
+            utterance.Translation = translation;
             utterance.Timespan = stopwatch.Elapsed;
             Transcript.Add(utterance);
 
             Thread pipeThread = new Thread(new ParameterizedThreadStart(SendData));
             pipeThread.IsBackground = true;
-            pipeThread.Start(final_Google);
+            pipeThread.Start(translation);
         }
 
         //Below 2 classes for Solution A:

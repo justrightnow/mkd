@@ -39,7 +39,7 @@ namespace WpfIATCSharp
             return Encoding.UTF8.GetString(lb.ToArray());
         }
 
-        public static Task RunIAT(List<VoiceData> VoiceReady, string session_begin_params, ref SendDataPipe SendDataPipe,string service, AzureAuthToken token)
+        public static Task RunIAT(List<VoiceData> VoiceReady, string session_begin_params, ref SendDataPipe SendDataPipe,string service, string service_name)
         {
             IntPtr session_id = IntPtr.Zero;
             string rec_result = string.Empty;
@@ -99,11 +99,8 @@ namespace WpfIATCSharp
 
             //结果
             Debug.WriteLine(rec_result);
-            
-            //BehaviorAnalysis behaviorAnalysis = new BehaviorAnalysis();
-            //behaviorAnalysis.Start(rec_result);
 
-            SendDataPipe.Start(rec_result, service, token);
+            SendDataPipe.Start(rec_result, service_name);
 
             int errorcode = MSCDLL.QISRSessionEnd(PtrToStr(session_id), hints);
             if ((int)ErrorCode.MSP_SUCCESS == errorcode)

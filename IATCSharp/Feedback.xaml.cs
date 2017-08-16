@@ -97,8 +97,8 @@ namespace WpfIATCSharp
                         Debug.WriteLine(recData);
                         this.Dispatcher.Invoke(d, recData);
 
-                        //if (service == "SessionBeginTranslateCntoEn") { maxLength = 51; } //Maximum English characters my screen can show in one line 
-                        //else if (service == "SessionBeginTranslateEntoCn") { maxLength = 26; } //Maximum Chinese characters my screen can show in one line
+                        //if (service == "CntoEn") { maxLength = 51; } //Maximum English characters my screen can show in one line 
+                        //else if (service == "EntoCn") { maxLength = 26; } //Maximum Chinese characters my screen can show in one line
                         maxLength = 51;
 
                         i = recData.Length / maxLength + 1;

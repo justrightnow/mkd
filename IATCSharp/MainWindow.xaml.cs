@@ -39,9 +39,8 @@ namespace WpfIATCSharp
     /**/public event EventHandler<Exception> Failed;
     /**/private bool click = false;
     /**/List<VoiceData> VoiceReady = new List<VoiceData>();
-        
-    /**/private const string TEXT_TRANSLATION_API_SUBSCRIPTION_KEY = "39594da7cf144cd99a3488b6bf794e61";
-    /**/private AzureAuthToken tokenProvider;
+
+        private string name;
 
         List<VoiceData> VoiceBuffer = new List<VoiceData>();
 
@@ -57,9 +56,7 @@ namespace WpfIATCSharp
 
             FormLoad();
             SpeechRecognition();
-        /**/tokenProvider = new AzureAuthToken(TEXT_TRANSLATION_API_SUBSCRIPTION_KEY);
 
-            /**///Feedback feedback = new Feedback(); //Put as a Global variable in order to use OnWindowClosing()
             feedback.Show();
             
             this.Closing += new CancelEventHandler(OnWindowClosing);
@@ -87,9 +84,9 @@ namespace WpfIATCSharp
                 combDevice.SelectedIndex = 0;
             }
 
-            combService.Items.Add("语音识别");
-            combService.Items.Add("中英翻译");
-            combService.Items.Add("英中翻译");
+            combService.Items.Add("语音识别"); //CntoCn
+            combService.Items.Add("中英翻译"); //CntoEn
+            combService.Items.Add("英中翻译"); //EntoCn
 
             btnStart.IsEnabled = false;
             btnStop.IsEnabled = false;
@@ -101,7 +98,7 @@ namespace WpfIATCSharp
             //初始化语音识别
             int ret = (int)ErrorCode.MSP_SUCCESS;
             string login_params = string.Format("appid = {0}, work_dir = {1}", ConfigurationManager.AppSettings["AppID"].ToString(), ConfigurationManager.AppSettings["WorkDir"].ToString());
-            //session_begin_params = ConfigurationManager.AppSettings["SessionBeginVoice"].ToString();
+            //session_begin_params = ConfigurationManager.AppSettings["CntoCn"].ToString();
 
             string Username = ConfigurationManager.AppSettings["Username"].ToString();
             string Password = ConfigurationManager.AppSettings["Password"].ToString();
@@ -226,7 +223,7 @@ namespace WpfIATCSharp
                 {
                     try
                     {
-                        await IAT.RunIAT(VoiceReady, session_begin_params, ref sd, selected_service,tokenProvider);
+                        await IAT.RunIAT(VoiceReady, session_begin_params, ref sd, selected_service,name);
                         item.CompletionSource.TrySetResult(true);
                         VoiceReady.Clear();
                     }
@@ -305,11 +302,13 @@ namespace WpfIATCSharp
 
         private void combService_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (combService.SelectedValue.ToString() == "语音识别") { selected_service = "SessionBeginVoice"; btnStart.IsEnabled = true; }
-            else if (combService.SelectedValue.ToString() == "中英翻译") { selected_service = "SessionBeginTranslateCntoEn"; btnStart.IsEnabled = true; }
-            else if (combService.SelectedValue.ToString() == "英中翻译") { selected_service = "SessionBeginTranslateEntoCn";btnStart.IsEnabled = true; }
-            else MessageBox.Show("请选择一个服务");
+            name = combService.SelectedValue.ToString();
 
+            if (name == "语音识别") selected_service = "CntoCn";
+            else if (name == "中英翻译") selected_service = "CntoCn"; //Google will do translation
+            else if (name == "英中翻译") selected_service = "EntoCn";
+
+            btnStart.IsEnabled = true;
             session_begin_params = ConfigurationManager.AppSettings[selected_service].ToString();
             feedback.service = selected_service;
         }
