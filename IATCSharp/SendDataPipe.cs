@@ -64,7 +64,6 @@ namespace WpfIATCSharp
             {
                 if (name == "中英翻译")
                 {
-                    Debug.WriteLine("HOLA!");
                     recognition = polish(text);
 
                     //Start Google
@@ -98,7 +97,6 @@ namespace WpfIATCSharp
 
                     foreach (string value in reco) translation += GoogleTranslate(value, "zh-CN", "en") + " ";
                     //End Google
-                    Debug.WriteLine("ADIOS!");
                 }
                 else if (name == "英中翻译")
                 {

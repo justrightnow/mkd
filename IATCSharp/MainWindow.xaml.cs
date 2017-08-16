@@ -54,6 +54,9 @@ namespace WpfIATCSharp
             Left = System.Windows.SystemParameters.PrimaryScreenWidth - 217 - 2;
             Top = System.Windows.SystemParameters.PrimaryScreenHeight - 150 - 40 - 2;
 
+            string promptValue = Prompt.ShowDialog("Introduce your password:", "Welcome!");
+            if (promptValue != "akkadu") { Environment.Exit(1); }
+
             FormLoad();
             SpeechRecognition();
 
@@ -66,8 +69,7 @@ namespace WpfIATCSharp
         {
             feedback.Close();
         }
-
-
+        
         public void CreateMemoryFile()
         {
             long capacity = 1 << 10 << 10;
@@ -113,8 +115,7 @@ namespace WpfIATCSharp
             TTS welcome = new TTS();
             welcome.CreateWAV("欢迎使用阿科督");
         }
-
-
+        
         private WaveIn CreateWaveInDevice()
         {
             WaveIn newWaveIn = new WaveIn();
@@ -175,6 +176,9 @@ namespace WpfIATCSharp
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            InitializeComponent();
+            this.Topmost = true;
+
             click = true;
             this.WindowState = WindowState.Minimized;
 
