@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Translator.Samples;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -38,7 +39,7 @@ namespace WpfIATCSharp
             return Encoding.UTF8.GetString(lb.ToArray());
         }
 
-        public static Task RunIAT(List<VoiceData> VoiceReady, string session_begin_params, ref SendDataPipe SendDataPipe,string service)
+        public static Task RunIAT(List<VoiceData> VoiceReady, string session_begin_params, ref SendDataPipe SendDataPipe,string service, AzureAuthToken token)
         {
             IntPtr session_id = IntPtr.Zero;
             string rec_result = string.Empty;
@@ -102,7 +103,7 @@ namespace WpfIATCSharp
             //BehaviorAnalysis behaviorAnalysis = new BehaviorAnalysis();
             //behaviorAnalysis.Start(rec_result);
 
-            SendDataPipe.Start(rec_result, service);
+            SendDataPipe.Start(rec_result, service, token);
 
             int errorcode = MSCDLL.QISRSessionEnd(PtrToStr(session_id), hints);
             if ((int)ErrorCode.MSP_SUCCESS == errorcode)

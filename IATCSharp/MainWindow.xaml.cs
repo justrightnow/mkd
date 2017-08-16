@@ -1,4 +1,5 @@
-﻿using NAudio.CoreAudioApi;
+﻿using Microsoft.Translator.Samples;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using System;
 using System.Collections.Concurrent;
@@ -38,6 +39,9 @@ namespace WpfIATCSharp
     /**/public event EventHandler<Exception> Failed;
     /**/private bool click = false;
     /**/List<VoiceData> VoiceReady = new List<VoiceData>();
+        
+    /**/private const string TEXT_TRANSLATION_API_SUBSCRIPTION_KEY = "39594da7cf144cd99a3488b6bf794e61";
+    /**/private AzureAuthToken tokenProvider;
 
         List<VoiceData> VoiceBuffer = new List<VoiceData>();
 
@@ -53,6 +57,7 @@ namespace WpfIATCSharp
 
             FormLoad();
             SpeechRecognition();
+        /**/tokenProvider = new AzureAuthToken(TEXT_TRANSLATION_API_SUBSCRIPTION_KEY);
 
             /**///Feedback feedback = new Feedback(); //Put as a Global variable in order to use OnWindowClosing()
             feedback.Show();
@@ -123,7 +128,7 @@ namespace WpfIATCSharp
         }
 
         void OnDataAvailable(object sender, WaveInEventArgs e)
-        {
+        {            
         /**/if (audioSent != null)
             {
                 audioSent.Write(e.Buffer, 0, e.BytesRecorded);
@@ -150,7 +155,7 @@ namespace WpfIATCSharp
                 {
                     //IAT.RunIAT(VoiceBuffer, session_begin_params, ref sd,selected_service);
                     VoiceReady.AddRange(VoiceBuffer);
-
+                    
                     var msg = new QueueItem(VoiceReady, session_begin_params, ref sd, selected_service);
                     this.outgoingMessageQueue.Add(msg);
                 }
@@ -221,7 +226,7 @@ namespace WpfIATCSharp
                 {
                     try
                     {
-                        await IAT.RunIAT(VoiceReady, session_begin_params, ref sd, selected_service);
+                        await IAT.RunIAT(VoiceReady, session_begin_params, ref sd, selected_service,tokenProvider);
                         item.CompletionSource.TrySetResult(true);
                         VoiceReady.Clear();
                     }

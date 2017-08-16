@@ -18,9 +18,19 @@
             <Border.Effect>
                 <DropShadowEffect ShadowDepth="0" Color="#FF414141" BlurRadius="8"/>
             </Border.Effect>-->
-            <!--<Label Name="labContent" Content="" FontSize="20" FontFamily="Technical Italic,Comic Sans MS,Arial" FontStyle="Normal" Foreground="White" />-->
-        <TextBox Name="txtContent" Text="你好" AcceptsReturn="True" TextWrapping="Wrap" Foreground="Red" FontSize="52" FontFamily="Technical Italic,Comic Sans MS,Arial" FontStyle="Normal" Background="{x:Null}" TextAlignment="Center" Margin="0" BorderThickness="0" PreviewMouseLeftButtonDown="txtContent_PreviewMouseLeftButtonDown"/>
+        <!--<Label Name="labContent" Content="" FontSize="20" FontFamily="Technical Italic,Comic Sans MS,Arial" FontStyle="Normal" Foreground="White" />-->
+        <!--<TextBox Name="txtContent" Text="你好" AcceptsReturn="True" TextWrapping="Wrap" Foreground="White" FontSize="52" FontFamily="Technical Italic,Comic Sans MS,Arial" Background="{x:Null}" TextAlignment="Center" Margin="0" BorderThickness="0" PreviewMouseLeftButtonDown="txtContent_PreviewMouseLeftButtonDown"/>-->
+
+        <TextBlock Name="txtBlock" TextAlignment="Center">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="1"
+                    Color="Black"
+                    Opacity="1"
+                    BlurRadius="5" Direction="315"/>
+            </TextBlock.Effect>
+        <TextBox Name="txtContent" Text="你好" AcceptsReturn="True" TextWrapping="Wrap" Foreground="White" FontSize="52" FontFamily="Technical Italic,Comic Sans MS,Arial" Background="{x:Null}" TextAlignment="Center" Margin="0" BorderThickness="0" PreviewMouseLeftButtonDown="txtContent_PreviewMouseLeftButtonDown"/>
+        </TextBlock>
+
         <!--</Border>-->
     </Grid>
-    
 </Window>

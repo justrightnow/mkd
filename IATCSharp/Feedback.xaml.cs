@@ -76,9 +76,7 @@ namespace WpfIATCSharp
             else
             {
                 if (first_time) { this.txtContent.Clear(); first_time = false; this.txtContent.AppendText(value); }
-                else this.txtContent.AppendText("\n" + value);
-
-                this.txtContent.LineDown();
+                else { this.txtContent.AppendText("\n" + value); this.txtContent.LineDown(); }
             }
         }
 
@@ -99,8 +97,9 @@ namespace WpfIATCSharp
                         Debug.WriteLine(recData);
                         this.Dispatcher.Invoke(d, recData);
 
-                        if (service == "SessionBeginTranslateCntoEn") { maxLength = 51; } //Maximum English characters my screen can show in one line 
-                        else if (service == "SessionBeginTranslateEntoCn") { maxLength = 26; } //Maximum Chinese characters my screen can show in one line
+                        //if (service == "SessionBeginTranslateCntoEn") { maxLength = 51; } //Maximum English characters my screen can show in one line 
+                        //else if (service == "SessionBeginTranslateEntoCn") { maxLength = 26; } //Maximum Chinese characters my screen can show in one line
+                        maxLength = 51;
 
                         i = recData.Length / maxLength + 1;
                         Debug.WriteLine("Length: {0} \nRows: {1}",recData.Length,i);

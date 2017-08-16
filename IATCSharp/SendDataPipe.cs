@@ -9,6 +9,13 @@ using System.Collections.Generic;
 using Microsoft.Win32;
 using System.Text;
 using System.Globalization;
+using System.Web;
+using System.Net;
+using Microsoft.Translator.Samples;
+
+using Google.Cloud.Translation.V2;
+using System.Text.RegularExpressions;
+
 
 namespace WpfIATCSharp
 {
@@ -47,37 +54,80 @@ namespace WpfIATCSharp
             }
         }
 
-        public void Start(string recResult,string service)
+        public void Start(string recResult,string service, AzureAuthToken tokenProvider)
         {
             string text = recResult;
             string final_text = "";
+            string final_Google = "";
 
             try
             {
                 if ((service == "SessionBeginTranslateCntoEn") || (service == "SessionBeginTranslateEntoCn"))
                 {
-                    RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
-                    final_text = jsonObject.trans_result.dst.ToString();
+                    //RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
+                    //final_text = jsonObject.trans_result.dst.ToString();
 
-                    TranscriptUtterance utterance = new TranscriptUtterance();
-                    utterance.Recognition = jsonObject.trans_result.src.ToString();
-                    utterance.Translation = jsonObject.trans_result.dst.ToString();
-                    utterance.Timespan = stopwatch.Elapsed;
-                    Transcript.Add(utterance);
+                    //TranscriptUtterance utterance = new TranscriptUtterance();
+                    //utterance.Recognition = jsonObject.trans_result.src.ToString();
+                    //utterance.Translation = jsonObject.trans_result.dst.ToString();
+                    //utterance.Timespan = stopwatch.Elapsed;
+                    //Transcript.Add(utterance);
                 }
-                else final_text = recResult;
-
+                else final_text = recResult;                  
             }
             catch (Exception e)
             {
                 text = null;
             }
 
-            Debug.WriteLine(final_text);
+            Debug.WriteLine("Voice Recognition: "+final_text);
+            final_text = polish(final_text);
+            Debug.WriteLine("Voice Recognition after polished: " + final_text);
+
+            //Start Google
+
+            List<string> reco = new List<string>();
+            reco.Add(final_text);
+            int b = 0;
+            
+            while (reco[b].Length > 74 || reco[b].Contains("？"))
+            {
+                string buffer = reco[b];
+
+                if (reco[b].Contains("？") && reco[b].IndexOf("？") < 74)
+                {
+                    reco.Add(reco[b].Substring(buffer.IndexOf("？") + 1));
+                    reco[b] = reco[b].Remove(buffer.IndexOf("？") + 1);
+                }
+                else
+                {
+                    while (buffer.LastIndexOf("，") > 74) buffer = buffer.Remove(buffer.LastIndexOf("，"));
+
+                    reco.Add(reco[b].Substring(buffer.LastIndexOf("，") + 1));
+                    reco[b] = reco[b].Remove(buffer.LastIndexOf("，") + 1);
+                }
+                
+                b++;
+            }
+
+            foreach (string value in reco)
+            {
+                final_Google += GoogleTranslate(value, "zh-CN", "en") + " ";
+            }
+
+            //End Google
+
+            Debug.WriteLine("Translation: "+final_Google);
+
+            TranscriptUtterance utterance = new TranscriptUtterance();
+            utterance.Recognition = final_text;
+            utterance.Translation = final_Google;
+            utterance.Timespan = stopwatch.Elapsed;
+            Transcript.Add(utterance);
 
             Thread pipeThread = new Thread(new ParameterizedThreadStart(SendData));
             pipeThread.IsBackground = true;
-            pipeThread.Start(final_text);
+            pipeThread.Start(final_Google);
         }
 
         //Below 2 classes for Solution A:
@@ -123,6 +173,97 @@ namespace WpfIATCSharp
                 }
             }
 
+        }
+
+        public string polish(string a)
+        {
+            string textpolished = a;
+
+            if (textpolished.Contains("啊")) textpolished = textpolished.Replace("啊", "");
+            if (textpolished.Contains("饿")) textpolished = textpolished.Replace("饿", "");
+            if (textpolished.Contains("嗯")) textpolished = textpolished.Replace("嗯", "");
+
+            return textpolished;
+        }
+
+        public string GoogleTranslate(string text, string fromLanguage, string toLanguage)
+        {
+            CookieContainer cc = new CookieContainer();
+
+            string GoogleTransBaseUrl = "https://translate.google.cn/";
+
+            var BaseResultHtml = GetResultHtml(GoogleTransBaseUrl, cc, "");
+
+            Regex re = new Regex(@"(?<=TKK=)(.*?)(?=\);)");
+
+            var TKKStr = re.Match(BaseResultHtml).ToString() + ")";//在返回的HTML中正则匹配TKK的JS代码  
+
+            var TKK = ExecuteScript(TKKStr, TKKStr);//执行TKK代码，得到TKK值  
+
+            var GetTkkJS = File.ReadAllText(@"gettk.js");
+
+            var tk = ExecuteScript("tk(\"" + text + "\",\"" + TKK + "\")", GetTkkJS);
+
+            string googleTransUrl = "https://translate.google.cn/translate_a/single?client=t&sl=" + fromLanguage + "&tl=" + toLanguage + "&hl=en&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&kc=1&tk=" + tk + "&q=" + HttpUtility.UrlEncode(text);
+
+            var ResultHtml = GetResultHtml(googleTransUrl, cc, "");
+
+            dynamic TempResult = Newtonsoft.Json.JsonConvert.DeserializeObject(ResultHtml);
+
+            string ResultText = Convert.ToString(TempResult[0][0][0]);
+
+            return ResultText;
+        }
+
+        public string GetResultHtml(string url, CookieContainer cookie, string referer)
+        {
+            var html = "";
+
+            var webRequest = WebRequest.Create(url) as HttpWebRequest;
+
+            webRequest.Method = "GET";
+
+            webRequest.CookieContainer = cookie;
+
+            webRequest.Referer = referer;
+
+            webRequest.Timeout = 20000;
+
+            webRequest.Headers.Add("X-Requested-With:XMLHttpRequest");
+
+            webRequest.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
+
+            webRequest.UserAgent = url;//useragent;  
+
+            using (var webResponse = (HttpWebResponse)webRequest.GetResponse())
+            {
+                using (var reader = new StreamReader(webResponse.GetResponseStream(), Encoding.UTF8))
+                {
+
+                    html = reader.ReadToEnd();
+                    reader.Close();
+                    webResponse.Close();
+                }
+            }
+            return html;
+        }
+
+        private string ExecuteScript(string sExpression, string sCode)
+        {
+            MSScriptControl.ScriptControl scriptControl = new MSScriptControl.ScriptControl();
+            scriptControl.UseSafeSubset = true;
+            scriptControl.Language = "JScript";
+            scriptControl.AddCode(sCode);
+            try
+            {
+                string str = scriptControl.Eval(sExpression).ToString();
+                return str;
+            }
+            catch (Exception ex)
+            {
+                string str = ex.Message;
+            }
+            return null;
         }
     }   
 }
