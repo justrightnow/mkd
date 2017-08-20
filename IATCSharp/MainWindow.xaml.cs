@@ -30,17 +30,16 @@ namespace WpfIATCSharp
         float secondsRecorded;
         float totalBufferLength;
 
-    /**/public string selected_service;
-    /**/Feedback feedback = new Feedback();
-    /**/SendDataPipe sd = new SendDataPipe();
-    /**/string logAudioFileName = null;
-    /**/private WaveFileWriter audioSent; //WaveFileWriter is a class                                 
-    /**/private BlockingCollection<QueueItem> outgoingMessageQueue = new BlockingCollection<QueueItem>();// Queue of messages waiting to be sent.
-    /**/public event EventHandler<Exception> Failed;
-    /**/private bool click = false;
-    /**/List<VoiceData> VoiceReady = new List<VoiceData>();
-
         private string name;
+        public string selected_service;
+        Feedback feedback = new Feedback();
+        SendDataPipe sd = new SendDataPipe();
+        string logAudioFileName = null;
+        private WaveFileWriter audioSent; //WaveFileWriter is a class                                 
+        private BlockingCollection<QueueItem> outgoingMessageQueue = new BlockingCollection<QueueItem>();// Queue of messages waiting to be sent.
+        public event EventHandler<Exception> Failed;
+        private bool click = false;
+        List<VoiceData> VoiceReady = new List<VoiceData>();
 
         List<VoiceData> VoiceBuffer = new List<VoiceData>();
 
@@ -314,7 +313,7 @@ namespace WpfIATCSharp
 
             btnStart.IsEnabled = true;
             session_begin_params = ConfigurationManager.AppSettings[selected_service].ToString();
-            feedback.service = selected_service;
+            feedback.service = name;
         }
 
         private string Now() { return DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.ff", DateTimeFormatInfo.InvariantInfo); }

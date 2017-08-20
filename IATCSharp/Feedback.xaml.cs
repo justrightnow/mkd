@@ -24,6 +24,7 @@ namespace WpfIATCSharp
         private bool wait = false;
         private int i = 0;
         private int maxLength = 0;
+        private int time = 0;
 
         private void RefreshWindow(double width, double height)
         {
@@ -92,25 +93,27 @@ namespace WpfIATCSharp
                     StreamReader sr = new StreamReader(_pipeServer);
                     string recData = sr.ReadLine();
 
+                    if (service == "中英翻译") { maxLength = 51; time = 3000; } //Maximum English characters my screen can show in one line 
+                    else if (service == "语音识别" || service == "英中翻译") { maxLength = 26; time = 1000; } //Maximum Chinese characters my screen can show in one line
+
                     if (recData.Length > 1)
                     {
                         Debug.WriteLine(recData);
                         this.Dispatcher.Invoke(d, recData);
 
-                        //if (service == "CntoEn") { maxLength = 51; } //Maximum English characters my screen can show in one line 
-                        //else if (service == "EntoCn") { maxLength = 26; } //Maximum Chinese characters my screen can show in one line
-                        maxLength = 51;
-
                         i = recData.Length / maxLength + 1;
                         Debug.WriteLine("Length: {0} \nRows: {1}",recData.Length,i);
                         if (i > 1)
                         {
-                            Thread.Sleep(3000);
-                            while (i > 1) { this.Dispatcher.Invoke(d, recData); Thread.Sleep(3000); i--; }
+                            Thread.Sleep(time);
+                            //Debug.WriteLine("Line Count2: {0}", txtContent.LineCount);
+                            while (i > 1) { this.Dispatcher.Invoke(d, recData); Thread.Sleep(time); i--; }
                         }
                     }
 
                     Thread.Sleep(1000);
+                    //Debug.WriteLine("Line Count1: {0}", txtContent.LineCount);
+                    //Debug.WriteLine("Last visible line index: {0}", txtContent.GetLastVisibleLineIndex());
                     sr.Close();
                 }
                 catch (Exception ex)

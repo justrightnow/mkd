@@ -65,7 +65,6 @@ namespace WpfIATCSharp
                 if (name == "中英翻译")
                 {
                     recognition = polish(text);
-
                     //Start Google
                     List<string> reco = new List<string>();
                     reco.Add(recognition);
