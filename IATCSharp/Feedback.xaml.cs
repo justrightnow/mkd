@@ -68,10 +68,10 @@ namespace WpfIATCSharp
         void setValue(string value)
         {
             //this.txtContent.Text = value;
-            
+
             //Option A Movies sub
-            if (i > 1)
-            {
+            if (txtContent.LineCount > i && !first_time)
+            {                
                 this.txtContent.LineDown();
             }
             else
@@ -91,29 +91,26 @@ namespace WpfIATCSharp
                     NamedPipeServerStream _pipeServer = new NamedPipeServerStream("closePipe", PipeDirection.InOut, 2);
                     _pipeServer.WaitForConnection();
                     StreamReader sr = new StreamReader(_pipeServer);
-                    string recData = sr.ReadLine();
+                    string recData = sr.ReadLine();                   
 
-                    if (service == "中英翻译") { maxLength = 51; time = 3000; } //Maximum English characters my screen can show in one line 
-                    else if (service == "语音识别" || service == "英中翻译") { maxLength = 26; time = 1000; } //Maximum Chinese characters my screen can show in one line
+                    if (service == "中英翻译") time = 3000;
+                    else if (service == "语音识别" || service == "英中翻译") time = 1000;
 
                     if (recData.Length > 1)
                     {
                         Debug.WriteLine(recData);
                         this.Dispatcher.Invoke(d, recData);
 
-                        i = recData.Length / maxLength + 1;
-                        Debug.WriteLine("Length: {0} \nRows: {1}",recData.Length,i);
-                        if (i > 1)
+                        Thread.Sleep(1000);
+                        i++;
+
+                        if (txtContent.LineCount > i)
                         {
                             Thread.Sleep(time);
-                            //Debug.WriteLine("Line Count2: {0}", txtContent.LineCount);
-                            while (i > 1) { this.Dispatcher.Invoke(d, recData); Thread.Sleep(time); i--; }
+                            while (txtContent.LineCount > i) { this.Dispatcher.Invoke(d, recData); Thread.Sleep(time); i++; }
                         }
                     }
 
-                    Thread.Sleep(1000);
-                    //Debug.WriteLine("Line Count1: {0}", txtContent.LineCount);
-                    //Debug.WriteLine("Last visible line index: {0}", txtContent.GetLastVisibleLineIndex());
                     sr.Close();
                 }
                 catch (Exception ex)
