@@ -98,7 +98,7 @@ namespace WpfIATCSharp
 
                     if (recData.Length > 1)
                     {
-                        Debug.WriteLine(recData);
+                        Debug.WriteLine("recData: "+ recData);
                         this.Dispatcher.Invoke(d, recData);
 
                         Thread.Sleep(1000);

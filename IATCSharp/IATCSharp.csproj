@@ -130,6 +130,7 @@
     <Compile Include="Kugou.xaml.cs">
       <DependentUpon>Kugou.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OrderTaskScheduler.cs" />
     <Compile Include="MemoryReadWrite.cs" />
     <Compile Include="MSCDLL.cs" />
     <Compile Include="Prompt.cs" />

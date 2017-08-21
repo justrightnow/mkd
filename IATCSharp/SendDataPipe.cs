@@ -15,7 +15,7 @@ using Microsoft.Translator.Samples;
 
 using Google.Cloud.Translation.V2;
 using System.Text.RegularExpressions;
-
+using System.Threading.Tasks;
 
 namespace WpfIATCSharp
 {
@@ -36,13 +36,17 @@ namespace WpfIATCSharp
         /// </summary>
     /**/private List<TranscriptUtterance> Transcript = new List<TranscriptUtterance>();
 
+        private OrderTaskScheduler _scheduler = new OrderTaskScheduler("aaa");
+
         private void SendData(object data)
         {
             try
             {
+                Debug.WriteLine("ID1: {0} SendData: {1}",Thread.CurrentThread.ManagedThreadId,data);
                 NamedPipeClientStream _pipeClient = new NamedPipeClientStream(".", "closePipe", PipeDirection.InOut, PipeOptions.None, TokenImpersonationLevel.Impersonation);
                 _pipeClient.Connect();
                 StreamWriter sw = new StreamWriter(_pipeClient);
+                Debug.WriteLine("ID2: {0} SendData: {1}", Thread.CurrentThread.ManagedThreadId, data);
                 sw.WriteLine(data);
                 sw.Flush();
                 Thread.Sleep(1000);
@@ -120,9 +124,16 @@ namespace WpfIATCSharp
             utterance.Timespan = stopwatch.Elapsed;
             Transcript.Add(utterance);
 
-            Thread pipeThread = new Thread(new ParameterizedThreadStart(SendData));
-            pipeThread.IsBackground = true;
-            pipeThread.Start(translation);
+            Debug.WriteLine("Google translation: "+translation);
+
+            Debug.WriteLine("Before SendData: " + DateTime.Now.ToString());
+            CallInOrderAsync(translation);
+            Debug.WriteLine("After SendData: " + DateTime.Now.ToString());
+        }
+
+        public Task CallInOrderAsync(string translation)
+        {
+            return Task.Factory.StartNew(() => SendData(translation), CancellationToken.None, TaskCreationOptions.None, this._scheduler);
         }
 
         //Below 2 classes for Solution A:
