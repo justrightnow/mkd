@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfIATCSharp"
         mc:Ignorable="d"
-        Title="Akkadu" Height="150" Width="217">
+        Title="恩懂" Height="180" Width="230">
     <Window.Resources>
         <Style TargetType="Button" x:Key="ButtonStyle">
             <Setter Property="Foreground" Value="Blue"></Setter>
@@ -13,15 +13,19 @@
         </Style>
     </Window.Resources>
     <Canvas>
-        <Button Name="btnStart" Height="25" Width="50" Content="开始" Click="btnStart_Click" Style="{StaticResource ButtonStyle}" Canvas.Top="65" Canvas.Left="34"></Button>
-        <Button Name="btnStop" Height="25" Width="50" Content="停止" Click="btnStop_Click" Style="{StaticResource ButtonStyle}" Canvas.Left="99" Canvas.Top="65"/>
-        <ComboBox Name="combDevice" Width="105" Canvas.Left="82" Canvas.Top="7" Height="19"/>
-        <TextBlock TextWrapping="Wrap" Text="选择设备：" VerticalAlignment="Top" Canvas.Top="9" Width="67" Canvas.Left="15" />
-        <ProgressBar Name="prgVolume"  Height="6" Canvas.Top="104" Width="172" Canvas.Left="15"/>
-        <CheckBox x:Name="CheckBox_Transcript" Content="副本" Canvas.Left="165" Canvas.Top="63" FontSize="7" VerticalContentAlignment="Center" Checked="CheckBox_Checked"/>
-        <ComboBox x:Name="combService" Width="105" Canvas.Left="82" Canvas.Top="32" Height="19" SelectionChanged="combService_SelectionChanged"/>
-        <TextBlock TextWrapping="Wrap" Text="选择服务：" VerticalAlignment="Top" Canvas.Top="32" Width="67" Canvas.Left="15" />
-        <CheckBox x:Name="CheckBox_RecordAudio" Content="录音" Canvas.Left="165" Canvas.Top="79" FontSize="7" VerticalContentAlignment="Center" Checked="CheckBox_RecordAudio_Checked"/>
+        <Button Name="btnStart" Height="25" Width="50" Content="开始" Click="btnStart_Click" Style="{StaticResource ButtonStyle}" Canvas.Top="69" Canvas.Left="55"></Button>
+        <Button Name="btnStop" Height="25" Width="50" Content="停止" Click="btnStop_Click" Style="{StaticResource ButtonStyle}" Canvas.Left="122" Canvas.Top="69"/>
+        <ComboBox Name="combDevice" Width="70" Canvas.Left="35" Canvas.Top="12" Height="19"/>
+        <TextBlock TextWrapping="Wrap" Text="Mic:" VerticalAlignment="Top" Canvas.Top="14" Width="22" Canvas.Left="13" FontSize="10" />
+        <ProgressBar Name="prgVolume"  Height="6" Canvas.Top="126" Width="172" Canvas.Left="25"/>
+        <CheckBox x:Name="CheckBox_Transcript" Content="副本" Canvas.Left="41" Canvas.Top="104" FontSize="7" VerticalContentAlignment="Center" Checked="CheckBox_Transcript_Checked"/>
+        <ComboBox x:Name="combFrom" Width="80" Canvas.Left="25" Canvas.Top="40" Height="19" SelectionChanged="combFrom_SelectionChanged" RenderTransformOrigin="0.669,0.461"/>
+        <CheckBox x:Name="CheckBox_RecordAudio" Content="录音" Canvas.Left="99" Canvas.Top="104" FontSize="7" VerticalContentAlignment="Center" Checked="CheckBox_RecordAudio_Checked"/>
+        <TextBlock TextWrapping="Wrap" Text="语音技术由科大讯飞提供" VerticalAlignment="Top" Canvas.Top="135" Width="225" FontSize="6" TextAlignment="Center" FontStyle="Italic" />
+        <ComboBox x:Name="combTo" Width="80" Canvas.Left="122" Canvas.Top="40" Height="19" SelectionChanged="combTo_SelectionChanged"/>
+        <CheckBox x:Name="CheckBox_Library" Content="Lib" Canvas.Left="157" Canvas.Top="104" FontSize="7" VerticalContentAlignment="Center" Checked="CheckBox_Library_Checked" Unchecked="CheckBox_Library_UnChecked"/>
+        <ComboBox x:Name="combFile" Width="70" Canvas.Left="132" Canvas.Top="12" Height="19" SelectionChanged="combFile_selectionChanged"/>
+        <TextBlock TextWrapping="Wrap" Text="File:" VerticalAlignment="Top" Canvas.Top="14" Width="22" Canvas.Left="111" FontSize="10" />
     </Canvas>
 
 </Window>

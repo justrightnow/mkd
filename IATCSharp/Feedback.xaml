@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfIATCSharp"
         mc:Ignorable="d"
         Background="{x:Null}" WindowStyle="None" AllowsTransparency="True"
-        Title="Subtitles" Height="145" Width="500" BorderThickness="0">
+        Title="Subtitles" Height="145" Width="500" BorderThickness="0" Margin="0" >
     <Window.Resources>
         <ContextMenu x:Key="ContextMenu">
             <MenuItem Header="关闭" Click="MenuItem_Click"></MenuItem>
@@ -28,7 +28,7 @@
                     Opacity="1"
                     BlurRadius="5" Direction="315"/>
             </TextBlock.Effect>
-        <TextBox Name="txtContent" Text="你好" AcceptsReturn="True" TextWrapping="Wrap" Foreground="White" FontSize="52" FontFamily="Technical Italic,Comic Sans MS,Arial" Background="{x:Null}" TextAlignment="Center" Margin="0" BorderThickness="0" PreviewMouseLeftButtonDown="txtContent_PreviewMouseLeftButtonDown"/>
+        <TextBox Name="txtContent" Text="你好" AcceptsReturn="True" TextWrapping="Wrap" Foreground="White" FontSize="52" FontFamily="Technical Italic,Comic Sans MS,Arial" Background="{x:Null}" TextAlignment="Center" Margin="0" BorderThickness="0" PreviewMouseLeftButtonDown="txtContent_PreviewMouseLeftButtonDown" Padding="200,0"/>
         </TextBlock>
 
         <!--</Border>-->

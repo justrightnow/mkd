@@ -10,15 +10,13 @@ using System.Windows.Media;
 
 namespace WpfIATCSharp
 {
-    /// <summary>
-    /// Feedback.xaml 的交互逻辑
-    /// </summary>
     public partial class Feedback : Window
     {
         delegate void MyDelegate(string value);
         private bool first_time = true;
         public string last_character;
-        public string service;
+        public string serviceFrom;
+        public string serviceTo;
         private string global_value = "";
         private int row = 0;
         private bool wait = false;
@@ -71,7 +69,7 @@ namespace WpfIATCSharp
 
             //Option A Movies sub
             if (txtContent.LineCount > i && !first_time)
-            {                
+            {
                 this.txtContent.LineDown();
             }
             else
@@ -91,10 +89,10 @@ namespace WpfIATCSharp
                     NamedPipeServerStream _pipeServer = new NamedPipeServerStream("closePipe", PipeDirection.InOut, 2);
                     _pipeServer.WaitForConnection();
                     StreamReader sr = new StreamReader(_pipeServer);
-                    string recData = sr.ReadLine();                   
+                    string recData = sr.ReadLine();
 
-                    if (service == "中英翻译") time = 3000;
-                    else if (service == "语音识别" || service == "英中翻译") time = 1000;
+                    if (serviceFrom == "中文" && serviceTo == "中文") time = 1000;
+                    else time = 2000;
 
                     if (recData.Length > 1)
                     {

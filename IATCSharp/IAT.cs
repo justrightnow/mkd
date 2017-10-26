@@ -1,8 +1,6 @@
-﻿using Microsoft.Translator.Samples;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -39,24 +37,24 @@ namespace WpfIATCSharp
             return Encoding.UTF8.GetString(lb.ToArray());
         }
 
-        public static Task RunIAT(List<VoiceData> VoiceReady, string session_begin_params, ref SendDataPipe SendDataPipe,string service, string service_name)
+        public static Task RunIAT(List<VoiceData> VoiceReady, string session_begin_params, ref SendDataPipe SendDataPipe)
         {
             IntPtr session_id = IntPtr.Zero;
             string rec_result = string.Empty;
-            string hints = "正常结束"; 
-            AudioStatus aud_stat = AudioStatus.ISR_AUDIO_SAMPLE_CONTINUE;      
-            EpStatus ep_stat = EpStatus.ISR_EP_LOOKING_FOR_SPEECH;        
-            RecogStatus rec_stat = RecogStatus.ISR_REC_STATUS_SUCCESS;    
+            string hints = "正常结束";
+            AudioStatus aud_stat = AudioStatus.ISR_AUDIO_SAMPLE_CONTINUE;
+            EpStatus ep_stat = EpStatus.ISR_EP_LOOKING_FOR_SPEECH;
+            RecogStatus rec_stat = RecogStatus.ISR_REC_STATUS_SUCCESS;
             int errcode = (int)ErrorCode.MSP_SUCCESS;
-            
-            session_id = MSCDLL.QISRSessionBegin(null, session_begin_params, ref errcode); 
+
+            session_id = MSCDLL.QISRSessionBegin(null, session_begin_params, ref errcode);
             if ((int)ErrorCode.MSP_SUCCESS != errcode)
             {
                 Debug.WriteLine("\nQISRSessionBegin failed! error code:{0}\n", errcode);
                 //return;
             }
 
-            for(int i=0;i<VoiceReady.Count();i++)
+            for (int i = 0; i < VoiceReady.Count(); i++)
             {
                 aud_stat = AudioStatus.ISR_AUDIO_SAMPLE_CONTINUE;
                 if (i == 0)
@@ -100,7 +98,7 @@ namespace WpfIATCSharp
             //结果
             Debug.WriteLine(rec_result);
 
-            SendDataPipe.Start(rec_result, service_name);
+            SendDataPipe.Start(rec_result);
 
             int errorcode = MSCDLL.QISRSessionEnd(PtrToStr(session_id), hints);
             if ((int)ErrorCode.MSP_SUCCESS == errorcode)

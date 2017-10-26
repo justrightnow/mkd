@@ -11,9 +11,7 @@ using System.Text;
 using System.Globalization;
 using System.Web;
 using System.Net;
-using Microsoft.Translator.Samples;
 
-using Google.Cloud.Translation.V2;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -21,32 +19,30 @@ namespace WpfIATCSharp
 {
     class SendDataPipe
     {
-    /**/Stopwatch stopwatch = new Stopwatch();
-        /// <summary>
-        /// Holds one utterance for the transcript
-        /// </summary>
-    /**/private class TranscriptUtterance
+        Stopwatch stopwatch = new Stopwatch();
+        public string serviceFrom;
+        public string serviceTo;
+        public string g_languageFrom;
+        public string g_languageTo;
+
+        private class TranscriptUtterance
         {
             public TimeSpan Timespan;
             public string Recognition;
             public string Translation;
         }
-        /// <summary>
-        /// Holds the set of utterances in this conversation;
-        /// </summary>
-    /**/private List<TranscriptUtterance> Transcript = new List<TranscriptUtterance>();
+
+        private List<TranscriptUtterance> Transcript = new List<TranscriptUtterance>();
 
         private OrderTaskScheduler _scheduler = new OrderTaskScheduler("aaa");
 
-        private void SendData(object data)
+        public void SendData(object data)
         {
             try
             {
-                Debug.WriteLine("ID1: {0} SendData: {1}",Thread.CurrentThread.ManagedThreadId,data);
                 NamedPipeClientStream _pipeClient = new NamedPipeClientStream(".", "closePipe", PipeDirection.InOut, PipeOptions.None, TokenImpersonationLevel.Impersonation);
                 _pipeClient.Connect();
                 StreamWriter sw = new StreamWriter(_pipeClient);
-                Debug.WriteLine("ID2: {0} SendData: {1}", Thread.CurrentThread.ManagedThreadId, data);
                 sw.WriteLine(data);
                 sw.Flush();
                 Thread.Sleep(1000);
@@ -58,7 +54,7 @@ namespace WpfIATCSharp
             }
         }
 
-        public void Start(string recResult,string name)
+        public void Start(string recResult)
         {
             string text = recResult;
             string recognition = "";
@@ -66,7 +62,7 @@ namespace WpfIATCSharp
 
             try
             {
-                if (name == "中英翻译")
+                if (serviceFrom == "中文" && serviceTo=="英文" || serviceFrom == "中文" && serviceTo == "西班牙语")
                 {
                     recognition = polish(text);
                     //Start Google
@@ -98,16 +94,10 @@ namespace WpfIATCSharp
                         b++;
                     }
 
-                    foreach (string value in reco) translation += GoogleTranslate(value, "zh-CN", "en") + " ";
+                    foreach (string value in reco) translation += GoogleTranslate(value, "zh-CN", g_languageTo) + " ";
                     //End Google
                 }
-                else if (name == "英中翻译")
-                {
-                    RootObject jsonObject = JsonConvert.DeserializeObject<RootObject>(text);
-                    recognition = jsonObject.trans_result.src.ToString();
-                    translation = jsonObject.trans_result.dst.ToString();
-                }
-                else if (name == "语音识别")
+                else if (serviceFrom == "中文" && serviceTo=="中文")
                 {
                     recognition = polish(text);
                     translation = recognition;
@@ -124,32 +114,20 @@ namespace WpfIATCSharp
             utterance.Timespan = stopwatch.Elapsed;
             Transcript.Add(utterance);
 
-            Debug.WriteLine("Google translation: "+translation);
-
-            Debug.WriteLine("Before SendData: " + DateTime.Now.ToString());
             CallInOrderAsync(translation);
-            Debug.WriteLine("After SendData: " + DateTime.Now.ToString());
         }
 
         public Task CallInOrderAsync(string translation)
         {
-            return Task.Factory.StartNew(() => SendData(translation), CancellationToken.None, TaskCreationOptions.None, this._scheduler);
-        }
-
-        //Below 2 classes for Solution A:
-        public class TransResult
-        {
-            public string src { get; set; }
-            public string dst { get; set; }
+            return Task.Factory.StartNew(() => SendData(translation), CancellationToken.None, TaskCreationOptions.None, this._scheduler); //Tasks don't close, after closing program still running on Task Manager! currently solved by using Environment.Exit(1) on MainWindow OnWindowClosing().. should be a better way (Cancellation Token?)
         }
 
         public class RootObject
         {
-            public string from { get; set; }
-            public int ret { get; set; }
-            public string sid { get; set; }
-            public string to { get; set; }
-            public TransResult trans_result { get; set; }
+            public string RecognitionStatus { get; set; }
+            public string DisplayText { get; set; }
+            public string Offset { get; set; }
+            public string Duration { get; set; }
         }
 
         private string Now() { return DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.ff", DateTimeFormatInfo.InvariantInfo); }

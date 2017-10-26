@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Translator.Samples
+namespace WpfIATCSharp
 {
     /// <summary>
     /// Client to call Cognitive Services Azure Auth Token service in order to get an access token.
@@ -132,4 +135,5 @@ namespace Microsoft.Translator.Samples
         }
 
     }
+
 }
