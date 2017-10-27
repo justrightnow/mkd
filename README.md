@@ -18,7 +18,6 @@ Comments:
 <hr></hr>
 <br/>
 <p>1. From <b>Chinese audio to English caption/subtitles</b>, the program uses:</p>
-<br/>
 
 <u>
 <li>Chinese voice recognition: <a href="http://www.xfyun.cn/services/voicedictation">iFlytek-科大讯飞</a></li>
