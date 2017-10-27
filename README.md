@@ -18,9 +18,14 @@ Comments:
 <hr></hr>
 <br/>
 1. From Chinese audio to English caption/subtitles, the program uses:
-  Chinese voice recognition (<a href="http://www.xfyun.cn/services/voicedictation">iFlytek-科大讯飞</a>) + Chinese to English translation (<a href="https://traslate.google.cn">Google Translate</a>)
+<u>
+<li align="center">Chinese voice recognition: <a href="http://www.xfyun.cn/services/voicedictation">iFlytek-科大讯飞</a></li>
+<li align="center">Chinese to English text translation: <a href="https://traslate.google.cn">Google Translate</a></li>
+</u>
+
 <br/>
 <br/>
+
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063586-2729e396-baaa-11e7-9f0d-71f921fba63f.png" width="500"></p>
 <br/>
 
