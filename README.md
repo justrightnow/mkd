@@ -2,7 +2,7 @@ Windows app that combines different APIs (<a href="http://www.xfyun.cn/services/
 
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063973-2f13fd20-baab-11e7-93c1-61155a152a3c.png" width="500"></p>
 
-<p align="center"><b>Except Google Translate, for each other service you must have an ID</b></p>
+<p align="center"><b>Except Google Translate, for each other service you must get an ID</b></p>
 <br/>
 
 Screenshot of the program:
