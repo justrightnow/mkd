@@ -2,7 +2,7 @@ Windows app that combines different APIs (<a href="http://www.xfyun.cn/services/
 
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063973-2f13fd20-baab-11e7-93c1-61155a152a3c.png" width="500"></p>
 
-<p align="center">Except Google Translate, for each other service you need to get an ID</p>
+<p align="center"><b>Except Google Translate, for each other service you must have an ID</b></p>
 <br/>
 
 Screenshot of the program:
@@ -16,7 +16,7 @@ Comments:
 <br/>
 1. For a speaker that talks in Chinese and requires English caption/subtitles on the screen, the program uses:
   Chinese voice recognition (iFlytek-科大讯飞) + Chinese to English translation (Google Translate)
-
+<br/>
 <br/>
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063586-2729e396-baaa-11e7-9f0d-71f921fba63f.png" width="500"></p>
 <br/>
