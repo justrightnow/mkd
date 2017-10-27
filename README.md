@@ -10,6 +10,9 @@ Screenshot of the program:
 Comments:
 <ul>
 <li>No matter what is on the screen (powerpoint, video, etc.) the subtitles will always be on top of it</li>
+<li>You can also run <b>audio files</b></li>
+<li>The transcript of the recognized audio and translation will be stored in a .txt file once you select the "副本" box</li>
+<li>You can record speaker voice by selecting "录音" box</li>
 </ul>
 <br/>
 <hr></hr>
