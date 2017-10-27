@@ -17,12 +17,15 @@ Comments:
 1. For a speaker that talks in Chinese and requires English caption/subtitles on the screen, the program uses:
   Chinese voice recognition (iFlytek-科大讯飞) + Chinese to English translation (Google Translate)
 
+<br/>
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063586-2729e396-baaa-11e7-9f0d-71f921fba63f.png" width="500"></p>
 <br/>
 
 2. For a speaker that talks in English and requires Chinese caption/subtitles on the screen, the program uses:
   English voice recognition (Bing Speech) + English to Chinese translation (Baidu Translate)
 
+<br/>
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063559-108eba8a-baaa-11e7-93b2-f4baecc82aff.png" width="500"></p>
+<br/>
 
 Open to any suggestion! Thanks!!
