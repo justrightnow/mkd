@@ -1,4 +1,4 @@
-Windows app that combines different APIs (iFlytek-科大讯飞, Google Translate, Bing Speech, Baidu Translate) to get the best translated caption/subtitles for China market:
+Windows app that combines different APIs (<a href="http://www.xfyun.cn/services/voicedictation">iFlytek-科大讯飞</a>, <a href="traslate.google.cn">Google Translate</a>, <a href="https://azure.microsoft.com/en-us/services/cognitive-services/speech/">Bing Speech</a>, <a href="http://fanyi-api.baidu.com/api/trans/product/index">Baidu Translate</a>) to get the best translated caption/subtitles for China market:
 
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063973-2f13fd20-baab-11e7-93c1-61155a152a3c.png" width="500"></p>
 
