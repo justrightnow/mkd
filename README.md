@@ -7,11 +7,13 @@ Windows app that combines different APIs (<a href="http://www.xfyun.cn/services/
 
 Screenshot of the program:
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32085308-d218c690-bb00-11e7-86d1-debebfe03c76.jpg"></p>
-<ul>Comments:
+Comments:
+<ul>
 <li>No matter what is on the screen (powerpoint, video, etc.) the subtitles will always be on top of it</li>
 </ul>
 <br/>
-
+<hr></hr>
+<br/>
 1. For a speaker that talks in Chinese and requires English caption/subtitles on the screen, the program uses:
   Chinese voice recognition (iFlytek-科大讯飞) + Chinese to English translation (Google Translate)
 
