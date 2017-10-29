@@ -10,7 +10,7 @@ Screenshot of the program:
 Comments:
 <ul>
 <li>No matter what is on the screen (powerpoint, video, etc.) the subtitles will always be on top of it</li>
-<li>You can also run <b>audio files</b></li>
+<li>You can also run <b>audio files</b> (currently only from English to Chinese)</li>
 <li>The transcript of the recognized audio and translation will be stored in a .txt file once you select the "副本" box</li>
 <li>You can record speaker voice by selecting "录音" box</li>
 </ul>
@@ -41,4 +41,19 @@ Comments:
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063559-108eba8a-baaa-11e7-93b2-f4baecc82aff.png" width="500"></p>
 <br/>
 
+<br/>
+<hr></hr>
+<br/>
+
+<h1>iFlytek</h1>
+<a href="http://www.xfyun.cn/services/voicedictation">iFlytek-科大讯飞</a>
+<br/>
+<p>In order to make the Chinese voice recognition work you still need to follow next 2 steps:</p>
+<ul>
+<li>Once you get your ID, download the SDK from your portal (below pic) 
+<li>Copy/paste the msc.dll file in your bin/debug folder. This file is unique for each ID.
+</ul>
+<p align="center"><img src="https://user-images.githubusercontent.com/24521991/32142652-83a1f13a-bcd6-11e7-9898-8535c88a85cc.png"></p>
+
+<br/>
 Open to any suggestion! Thanks!!
