@@ -39,9 +39,7 @@ Comments:
 
 <br/>
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063559-108eba8a-baaa-11e7-93b2-f4baecc82aff.png" width="500"></p>
-<br/>
 
-<br/>
 <hr></hr>
 <br/>
 
