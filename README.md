@@ -40,8 +40,8 @@ Comments:
 <br/>
 <p align="center"><img src="https://user-images.githubusercontent.com/24521991/32063559-108eba8a-baaa-11e7-93b2-f4baecc82aff.png" width="500"></p>
 
-<hr></hr>
 <br/>
+<hr></hr>
 
 <h1>iFlytek</h1>
 <a href="http://www.xfyun.cn/services/voicedictation">iFlytek-科大讯飞</a>
